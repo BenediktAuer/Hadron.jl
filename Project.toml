@@ -3,7 +3,13 @@ uuid = "0c8f937b-db0d-40f8-873a-de7e8bc02b17"
 authors = ["Benedikt Auer"]
 version = "1.0.0-DEV"
 
+[deps]
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+
 [compat]
+DataFrames = "1.5.0"
+StatsBase = "0.34.6"
 julia = "1.6.7"
 
 [extras]
