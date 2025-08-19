@@ -68,7 +68,7 @@ end
 Generate R bootstrap samples from the data in `bs` and apply the function `f` to each sample.
     Returns a `BootstrapResult` containing the results of applying `f` to each bootstrap sample.
 """
-function boot(bs::T,f;R::Int =500, skip::Int=0) where {T<:AbstractBootstrap}::BootstrapResult
+function boot(bs::T,f;R::Int =500, skip::Int=0)::BootstrapResult where {T<:AbstractBootstrap}
     data = bs.data[1+skip:end]
      n = length(data)
     temp = Vector{Float64}(undef, n)
