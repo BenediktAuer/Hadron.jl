@@ -2,6 +2,7 @@ using StatsBase: sample!
 import Tables
 using Statistics: mean, std
 using Random: rand, seed!
+include("blocking.jl")
 
 # Type mapping
 _promote_type(::Type{T}) where {T<:Integer} = FloatTypeForInt(T)
@@ -55,9 +56,36 @@ function Bootstrap(f,data::D, column::Symbol) where{D}
     Bootstrap(f(Tables.getcolumn(data,column)),_seed)
 end
 
-function ts_boot(bs::T,f;R::Int =500, skip::Int=0) where {T<:AbstractBootstrap} 
-    data = bs.data[skip:length(data)]
+function ts_boot(bs::T;l::Int = 2,R::Int =500, skip::Int=0) where {T<:AbstractBootstrap} 
+    data = bs.data[skip:length(bs.data)]
+    naive_σ = std(data)/sqrt(length(data))
+    println("Naive: $(mean(data)) ± $(naive_σ) ")
+    j=0
+   
+        temp_res = Vector{Float64}(undef, 6)
+        Output = zeros(Float64,0,6)
+    while length(data)/l>20
+        j+=1
+        blckdData = blocking(data,l)
+        res = boot(Bootstrap(blckdData),[mean,std];R=R)
+        temp_res[1] = l
+        temp_res[2] = mean(blckdData)
+        temp_res[3] = std(res[:mean])
+        temp_res[4] = std(res[:std])/sqrt(length(blckdData))
+        temp_res[5] = (std(res[:mean])^2/naive_σ^2)/2
+        temp_res[6] = mean(blckdData)- mean(res[:mean])
+        println(temp_res)
+        Output = vcat(Output, temp_res')
+        if l<32
+            l=l*2
+        else
+            l=l+20
+            
+        end
 
+        
+    end
+    res = TSBootstrapResult(Output,[:Blocksize,:μ,:σ,:δσ,:τ_int,:Bias])
 
 
 end
@@ -81,3 +109,21 @@ function boot(bs::T,f;R::Int =500, skip::Int=0)::BootstrapResult where {T<:Abstr
     res = BootstrapResult(result,f)
     return res
 end
+
+function boot(bs::T,f::F;R::Int =500, skip::Int=0)::BootstrapResult where {T<:AbstractBootstrap, F<: Array{Function}}
+    data = bs.data[1+skip:end]
+     n = length(data)
+    temp = Vector{Float64}(undef, n)
+    result = Matrix{Float64}(undef, R, length(f))
+    for b in 1:R
+        resample = sample!(data, temp, replace=true)
+        for i in eachindex(f)
+            result[b, i] = f[i](resample) 
+            
+        end
+    end
+
+    res = BootstrapResult(result,f, map(x->x(data), f))
+    return res
+end
+    

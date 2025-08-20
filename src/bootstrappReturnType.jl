@@ -27,31 +27,54 @@ Base.length(m::AbstractBootstrapResult) = length(getfield(m, :data))
 
 Base.iterate(m::AbstractBootstrapResult, st=1) = iterate(getfield(m, :data), st)
 
-getcolumn(m::eltype(AbstractBootstrapResult), ::Type, col::Int, nm::Symbol) =
-    getfield(getfield(m, :source), :matrix)[getfield(m, :row), col]
-getcolumn(m::eltype(AbstractBootstrapResult), i::Int) =
-    getfield(getfield(m, :source), :matrix)[getfield(m, :row), i]
-getcolumn(m::eltype(AbstractBootstrapResult), nm::Symbol) =
-    getfield(getfield(m, :source), :matrix)[getfield(m, :row), getfield(getfield(m, :source), :lookup)[nm]]
-columnnames(m::eltype(AbstractBootstrapResult)) = names(getfield(m, :source))
+# Tables.getcolumn(m::eltype(AbstractBootstrapResult), ::Type, col::Int, nm::Symbol) =
+#     getfield(getfield(m, :source), :matrix)[getfield(m, :row), col]
+# Tables.getcolumn(m::eltype(AbstractBootstrapResult), i::Int) =
+#     getfield(getfield(m, :source), :matrix)[getfield(m, :row), i]
+# Tables.getcolumn(m::eltype(AbstractBootstrapResult), nm::Symbol) =
+#     getfield(getfield(m, :source), :matrix)[getfield(m, :row), getfield(getfield(m, :source), :lookup)[nm]]
+# Tables.columnnames(m::eltype(AbstractBootstrapResult)) = names(m)
+
+function describeBoot(m::AbstractBootstrapResult)
+    println("Summary of Bootstrap Result: ")
+    for idx in eachindex(Tables.columnnames(m))
+        colname = Tables.columnnames(m)[idx]
+        coldata = Tables.getcolumn(m, colname)
+        println("Column: $colname")
+        println("  Oberservable: $(getfield(m,:observable)[idx])")
+        println("  std: $(std(coldata))")
+        
+    end
+end
 
 struct BootstrapResult{DF} <:AbstractBootstrapResult
     data::DF
-    f::Symbol
-    function BootstrapResult(data::AbstractVector{T}, func) where {T<:Number}
+    f::Union{Symbol, Vector{Symbol}}
+    observable::Vector{Float64}
+    function BootstrapResult(data::AbstractVecOrMat{T}, func, observable::Float64) where {T<:Number}
 #use table default constructor to make Table
     df = Tables.table(data, header=[Symbol(func)])
-    new{typeof(df)}(df, Symbol(func))
+    new{typeof(df)}(df, Symbol(func),[observable])
+end
+function BootstrapResult(data::AbstractVecOrMat{T}, func::Vector{Function},observable::Vector{Float64}) where {T<:Number}
+#use table default constructor to make Table
+    func = map(f -> Symbol(f), func)
+    df = Tables.table(data, header=func)
+    new{typeof(df)}(df, func,observable)
 end
 end
 
 
 struct TSBootstrapResult{DF} <:AbstractBootstrapResult
     data::DF
-    f::Symbol
-function TSBootstrapResult(data::AbstractVector{T}, func) where {T<:Number}
+    f::Union{Symbol, Vector{Symbol}}
+
+
+function TSBootstrapResult(data::AbstractVecOrMat{T}, names::Vector{Symbol}) where {T<:Number}
 #use table default constructor to make Table
-    df = Tables.table( data,header=[Symbol(func)])
-    new{typeof(df)}(df,Symbol(func))
+
+    df = Tables.table(data, header=names)
+    new{typeof(df)}(df, :μ)
 end
+
 end

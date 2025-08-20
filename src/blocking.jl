@@ -7,7 +7,7 @@ function blocking(data,l)
     end
     if ndims(data) ==1
 
-        return map( mean, Iterators.partition(data, l))
+        return map( mean, Iterators.partition(Iterators.take(data, fld(length(data),l)*l), l))
     end
     if ndims(data) != 2 
         error("Currently only 1D data can be blocked!")
