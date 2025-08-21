@@ -53,11 +53,16 @@ end
 function Bootstrap(f,data::D, column::Symbol) where{D}
          Tables.istable(D) ||ArgumentError( "The Provided Data must implemment the Tables.jl interface")
      _seed = rand(Int)
-    Bootstrap(f(Tables.getcolumn(data,column)),_seed)
+    Bootstrap(f.(Tables.getcolumn(data,column)),_seed)
+end
+
+function Bootstrap(f,data::D, column::Symbol, seed::Int) where{D}
+         Tables.istable(D) ||ArgumentError( "The Provided Data must implemment the Tables.jl interface")
+    Bootstrap(f.(Tables.getcolumn(data,column)),seed)
 end
 
 function ts_boot(bs::T;l::Int = 2,R::Int =500, skip::Int=0) where {T<:AbstractBootstrap} 
-    data = bs.data[skip:length(bs.data)]
+    data = bs.data[1+skip:length(bs.data)]
     naive_σ = std(data)/sqrt(length(data))
     println("Naive: $(mean(data)) ± $(naive_σ) ")
     j=0
@@ -74,7 +79,6 @@ function ts_boot(bs::T;l::Int = 2,R::Int =500, skip::Int=0) where {T<:AbstractBo
         temp_res[4] = std(res[:std])/sqrt(length(blckdData))
         temp_res[5] = (std(res[:mean])^2/naive_σ^2)/2
         temp_res[6] = mean(blckdData)- mean(res[:mean])
-        println(temp_res)
         Output = vcat(Output, temp_res')
         if l<32
             l=l*2
@@ -106,7 +110,7 @@ function boot(bs::T,f;R::Int =500, skip::Int=0)::BootstrapResult where {T<:Abstr
         result[b ] = f(resample)
     end
 
-    res = BootstrapResult(result,f)
+    res = BootstrapResult(result,f,f(data))
     return res
 end
 

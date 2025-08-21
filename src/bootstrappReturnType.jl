@@ -49,12 +49,12 @@ end
 
 struct BootstrapResult{DF} <:AbstractBootstrapResult
     data::DF
-    f::Union{Symbol, Vector{Symbol}}
+    f::Vector{Symbol}
     observable::Vector{Float64}
     function BootstrapResult(data::AbstractVecOrMat{T}, func, observable::Float64) where {T<:Number}
 #use table default constructor to make Table
     df = Tables.table(data, header=[Symbol(func)])
-    new{typeof(df)}(df, Symbol(func),[observable])
+    new{typeof(df)}(df, [Symbol(func)],[observable])
 end
 function BootstrapResult(data::AbstractVecOrMat{T}, func::Vector{Function},observable::Vector{Float64}) where {T<:Number}
 #use table default constructor to make Table
