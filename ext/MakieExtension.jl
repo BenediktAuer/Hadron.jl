@@ -56,9 +56,9 @@ end
 function Hadron.analyse(m::BootstrapResult, ;col=1, QQmarkercolor=Makie.wong_colors()[2], QQcolor = Makie.wong_colors()[1],kw_args...)
     fig = Figure()
     a1 = Axis(fig[1,1], title = "Histogram",xlabel=String(getfield(m,:f)[col]) ,ylabel="Hits") 
-    a2 = Axis(fig[1,2], title = "Q-Q Plot")
+    a2 = Axis(fig[1,2], title = "Q-Q Plot - $(String(getfield(m,:f)[col]))")
     histboot!(a1,m,col=col,kw_args... )
-    qqnorm!(a2,m,markercolor=QQmarkercolor, color=QQcolor, qqline=:fit)
+    qqnorm!(a2,m[col],markercolor=QQmarkercolor, color=QQcolor, qqline=:fit)
     return fig
 end
 
