@@ -7,7 +7,7 @@ else
 end
 
 using Hadron
-import Hadron: boothist,boothist!, BootstrapResult
+import Hadron: boothist,boothist!, BootstrapResult, TSBootstrapResult
 import Statistics: std
 " QQNORM conversion"
 
@@ -88,7 +88,7 @@ function Makie.plot!(plt::BootHist{<:Tuple{BootstrapResult}})
     return plt
 end
 """
-    analyse(bootstrap)
+    analyse(bootstrap::BootstrapResult)
 
 Plots a histogram and Q-Q Plot of `bootstrap`.
 Using qqnorm and boothist.
@@ -114,6 +114,14 @@ function Hadron.analyse(m::BootstrapResult, ;col=1, QQmarkercolor=Makie.wong_col
     padding = (5, 5, 30, 5))
     boothist!(a1,m,col=col,kw_args... )
     qqnorm!(a2,m,col=col,markercolor=QQmarkercolor, color=QQcolor, qqline=:fit, kw_args...)
+    return fig
+end
+
+function Hadron.analyse(m::TSBootstrapResult)
+    fig = Figure()
+    ax = Axis(fig[1,1], xlabel="Blocklength", ylabel = L"\sigma")
+    scatter!(ax, m[:Blocksize], m[:σ])
+    errorbars!(ax,m[:Blocksize], m[:σ], m[:δσ], whiskerwidth = 10)
     return fig
 end
 
