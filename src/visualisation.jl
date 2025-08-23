@@ -1,6 +1,6 @@
 # Dummy class for function definitions implemented by the plotting backends
 
-function histboot
+function boothist
 end
-function histboot! end
+function boothist! end
 function analyse end

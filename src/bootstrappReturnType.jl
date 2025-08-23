@@ -67,14 +67,14 @@ end
 
 struct TSBootstrapResult{DF} <:AbstractBootstrapResult
     data::DF
-    f::Union{Symbol, Vector{Symbol}}
+    f:: Vector{Symbol}
 
 
 function TSBootstrapResult(data::AbstractVecOrMat{T}, names::Vector{Symbol}) where {T<:Number}
 #use table default constructor to make Table
 
     df = Tables.table(data, header=names)
-    new{typeof(df)}(df, :μ)
+    new{typeof(df)}(df, [:μ])
 end
 
 end
