@@ -97,8 +97,9 @@ end
 """
     boot(bs::T,f;R::Int =500, skip::Int=0) where {T<:AbstractBootstrap} => BootstrapResult
 
-Generate R bootstrap samples from the data in `bs` and apply the function `f` to each sample.
+Generate `R` bootstrap samples from the data in `bs` and apply the function `f` to each sample.
     Returns a `BootstrapResult` containing the results of applying `f` to each bootstrap sample.
+    `f` can also be a Array of Functions
 """
 function boot(bs::T,f;R::Int =500, skip::Int=0)::BootstrapResult where {T<:AbstractBootstrap}
     data = bs.data[1+skip:end]
@@ -114,7 +115,7 @@ function boot(bs::T,f;R::Int =500, skip::Int=0)::BootstrapResult where {T<:Abstr
     return res
 end
 
-function boot(bs::T,f::F;R::Int =500, skip::Int=0)::BootstrapResult where {T<:AbstractBootstrap, F<: Array{Function}}
+function boot(bs::T,f::F;R::Int =500, skip::Int=0)::BootstrapResult where {T<:AbstractBootstrap, F<: AbstractArray{Function}}
     data = bs.data[1+skip:end]
      n = length(data)
     temp = Vector{Float64}(undef, n)

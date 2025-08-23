@@ -87,15 +87,33 @@ function Makie.plot!(plt::BootHist{<:Tuple{BootstrapResult}})
 
     return plt
 end
+"""
+    analyse(bootstrap)
+
+Plots a histogram and Q-Q Plot of `bootstrap`.
+Using qqnorm and boothist.
+
+Attributes
+==========
+
+ `col = 1`:    If `bootstrap` has multiple observables, `col` selects which observables to plot. Type `Int`
+
+ `QQmarkercolor=Makie.wong_colors()[2]`:  Color of Marker used in qqnorm
+
+ `QQcolor = Makie.wong_colors()[1]`:  Color of the line used in qqnorm
+
+ `kw_args...`:  Other Arguments which are forwarded to boothist, and qqnorm, for a list see those
+
+"""
 function Hadron.analyse(m::BootstrapResult, ;col=1, QQmarkercolor=Makie.wong_colors()[2], QQcolor = Makie.wong_colors()[1],kw_args...)
     fig = Figure()
-    a1 = Axis(fig[1,1], title = "Histogram",xlabel=String(getfield(m,:f)[col]) ,ylabel="Hits") 
-    a2 = Axis(fig[1,2], title = "Q-Q Plot - $(String(getfield(m,:f)[col]))")
-    Label(fig[1, 1:2, Top()], " ", valign = :top,
+    a1 = Axis(fig[1,1], title = "Histogram",xlabel=repr(getfield(m,:f)[col]) ,ylabel="Hits") 
+    a2 = Axis(fig[1,2], title = "Q-Q Plot ")
+    Label(fig[1, 1:2, Top()],  uppercasefirst(repr(getfield(m,:f)[col])[2:end]), valign = :top,
     font = :bold,
-    padding = (5, 5, 20, 5))
+    padding = (5, 5, 30, 5))
     boothist!(a1,m,col=col,kw_args... )
-    qqnorm!(a2,m,col=col,markercolor=QQmarkercolor, color=QQcolor, qqline=:fit)
+    qqnorm!(a2,m,col=col,markercolor=QQmarkercolor, color=QQcolor, qqline=:fit, kw_args...)
     return fig
 end
 
