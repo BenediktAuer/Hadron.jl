@@ -18,7 +18,7 @@ MakieExtension = "Makie"
 
 [compat]
 Makie = "0.24.6"
-PrettyTables = "2.4.0"
+PrettyTables = "2.4.0, 3"
 Random = "1.11.0"
 Statistics = "1.11.1"
 StatsBase = "0.34.6"
