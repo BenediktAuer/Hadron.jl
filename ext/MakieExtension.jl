@@ -15,25 +15,25 @@ Makie.convert_arguments(P::Type{<:QQNorm}, m::BootstrapResult; qqline=:none, col
 Makie.used_attributes(::Type{<:QQNorm},m::BootstrapResult ) = (:qqline,:col)
 
 " Errorbars conversion"
-Makie.convert_arguments(P::Type{<:Errorbars},x::Vector, m::Vector{BootstrapResult}; col=1) = Makie.convert_arguments(P,x,[getfield(k,:observable)[col] for k in m], [std(k[col]) for k in m ] )
+Makie.convert_arguments(P::Type{<:Errorbars},x::Vector, m::Vector{<:BootstrapResult}; col=1) = Makie.convert_arguments(P,x,[getfield(k,:observable)[col] for k in m], [std(k[col]) for k in m ] )
 Makie.convert_arguments(P::Type{<:Errorbars}, x::Real, m::BootstrapResult; col=1) = Makie.convert_arguments(P,[x],[getfield(m,:observable)[col]], [std(m[col])])
-Makie.used_attributes(::Type{<:Errorbars},x,m::Union{BootstrapResult, Vector{BootstrapResult}}) = (:col,)
+Makie.used_attributes(::Type{<:Errorbars},x,m::Union{BootstrapResult, Vector{<:BootstrapResult}}) = (:col,)
 
-Makie.convert_arguments(P::Type{<:Errorbars}, m::Union{BootstrapResult, Vector{BootstrapResult}},x::Vector; col=1) = Makie.convert_arguments(P,[getfield(k,:observable)[col] for k in m],x, [std(k[col]) for k in m ]; direction = :x )
+Makie.convert_arguments(P::Type{<:Errorbars}, m::Union{BootstrapResult, Vector{<:BootstrapResult}},x::Vector; col=1) = Makie.convert_arguments(P,[getfield(k,:observable)[col] for k in m],x, [std(k[col]) for k in m ]; direction = :x )
 function Makie.convert_arguments(P::Type{<:Errorbars}, m::BootstrapResult, x::Real; col=1) 
     return Makie.convert_arguments(P,[getfield(m,:observable)[col]],[x], [std(m[col])])
 end
-Makie.used_attributes(::Type{<:Errorbars},m::Union{BootstrapResult, Vector{BootstrapResult}},x) = (:col, )
+Makie.used_attributes(::Type{<:Errorbars},m::Union{BootstrapResult, Vector{<:BootstrapResult}},x) = (:col, )
 
 
 " Scatter conversion"
-Makie.convert_arguments(P::Type{<:Scatter}, x::Vector, m::Vector{BootstrapResult}; col=1  ) = Makie.convert_arguments(P, x,[getfield(k,:observable)[col] for k in m] )
+Makie.convert_arguments(P::Type{<:Scatter}, x::Vector, m::Vector{<:BootstrapResult}; col=1  ) = Makie.convert_arguments(P, x,[getfield(k,:observable)[col] for k in m] )
 Makie.convert_arguments(P::Type{<:Scatter}, x::Real, m::BootstrapResult; col=1) = Makie.convert_arguments(P,[x],[getfield(m,:observable)[col]])
 Makie.used_attributes(::Type{<:Scatter},x,m::Union{BootstrapResult, Vector{BootstrapResult}}) = (:col,)
 
-Makie.convert_arguments(P::Type{<:Scatter}, m::Vector{BootstrapResult}, x::Vector; col=1  ) = Makie.convert_arguments(P, [getfield(k,:observable)[col] for k in m],x )
+Makie.convert_arguments(P::Type{<:Scatter}, m::Vector{<:BootstrapResult}, x::Vector; col=1  ) = Makie.convert_arguments(P, [getfield(k,:observable)[col] for k in m],x )
 Makie.convert_arguments(P::Type{<:Scatter}, m::BootstrapResult, x::Real; col=1) = Makie.convert_arguments(P,[getfield(m,:observable)[col]],[x])
-Makie.used_attributes(::Type{<:Scatter},m::Union{BootstrapResult, Vector{BootstrapResult}},x) = (:col, )
+Makie.used_attributes(::Type{<:Scatter},m::Union{BootstrapResult, Vector{<:BootstrapResult}},x) = (:col, )
 """
     boothist(bootstrap)
 
