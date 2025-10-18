@@ -2,6 +2,7 @@ using StatsBase: sample!
 import Tables
 using Statistics: mean, std
 using Random: rand, seed!
+include("helperfunctions.jl")
 include("blocking.jl")
 
 # Type mapping
@@ -23,16 +24,16 @@ FloatTypeForInt(::Type{UInt128}) = Float64  # ditto
 
 abstract type AbstractBootstrap end
 
-struct Bootstrap{ T<:Number, V<:AbstractVector{T}}<: AbstractBootstrap
+struct Bootstrap{ T<:Number, V<:AbstractVecOrMat{T}}<: AbstractBootstrap
 data::V
 seed ::Int
-    function Bootstrap(_data::V,  _seed::Int) where {T<:Number,V<:AbstractVector{T} }
+    function Bootstrap(_data::V,  _seed::Int) where {T<:Number,V<:AbstractVecOrMat{T} }
     seed!(_seed)
     new{T,V}(_data,_seed)
 end
 # ["Blocksize","μ", "σ", "δσ","τ_int", "Bias"]
 end
-function Bootstrap(data::V) where{T<:Number,V<:AbstractVector{T}}
+function Bootstrap(data::V) where{T<:Number,V<:AbstractVecOrMat{T}}
      _seed = rand(Int)
     Bootstrap(data,_seed)
 end
@@ -101,21 +102,33 @@ Generate `R` bootstrap samples from the data in `bs` and apply the function `f` 
     Returns a `BootstrapResult` containing the results of applying `f` to each bootstrap sample.
     `f` can also be a Array of Functions
 """
-function boot(bs::T,f;R::Int =500, skip::Int=0)::BootstrapResult where {T<:AbstractBootstrap}
+function boot(bs::T,f;R::Int =500, skip::Int=0)::BootstrapResult where {T<:Bootstrap{<:Number,<:AbstractVector}}
     data = bs.data[1+skip:end]
-     n = length(data)
+     n = size(data)
     temp = Vector{Float64}(undef, n)
     result = Vector{Float64}(undef, R)
     for b in 1:R
-        resample = sample!(data, temp, replace=true)
-        result[b ] = f(resample)
+     sample!(data, temp, replace=true)
+        result[b ] = f(temp)
     end
 
     res = BootstrapResult(result,f,f(data))
     return res
 end
+function boot(bs::T,f;R::Int =500, skip::Int=0)::BootstrapResult where {T<:Bootstrap{<:Number,<:AbstractArray{<:Number,2}}}
+    data =  bs.data[ skip+1:last(axes(bs.data,1)), :]
+     nrows,ncols = size(data)
+    temp = Vector{Float64}(undef, )
+    result = Vector{Float64}(undef, R)
+    for b in 1:R
+     sample!(data, temp, replace=true)
+        result[b ] = f(temp)
+    end
 
-function boot(bs::T,f::F;R::Int =500, skip::Int=0)::BootstrapResult where {T<:AbstractBootstrap, F<: AbstractArray{Function}}
+    res = BootstrapResult(result,f,f(data))
+    return res
+end
+function boot(bs::T,f::F;R::Int =500, skip::Int=0)::BootstrapResult where {T<:Bootstrap{<:Number,<:AbstractVector}, F<: AbstractArray{Function}}
     data = bs.data[1+skip:end]
      n = length(data)
     temp = Vector{Float64}(undef, n)
