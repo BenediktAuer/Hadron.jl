@@ -4,6 +4,7 @@ include( "bootstrapp.jl")
 
 include("io.jl")
 include("visualisation.jl")
+
 export Bootstrap, ts_boot, boot, describeBoot, show
 
 export boothist,analyse,boothist!
