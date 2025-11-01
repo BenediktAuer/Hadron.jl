@@ -29,17 +29,17 @@ if uwerr.R>1
     
 end
     if uwerr.primary == 1
-    println(L"W_{opt}           = %$(uwerr.Wₒₚₜ)")
-    println("value               = $(uwerr.observable)")
-    println(L"\sigma(x)         = %$(uwerr.Δvalue)")
-    println(L"\sigam(\sigma)(x) = %$(uwerr.ΔΔvalue)")
-    println(L"\tau_{\text{int}} = %$(uwerr.τᵢₙₜ)")
-    println(L"\sigma(\tau_{\text{int}}) = %$(uwerr.Δτᵢₙₜ)")
+    display(L"W_{opt}           = %$(uwerr.Wₒₚₜ)")
+    display(L"\text{x}               = %$(uwerr.observable)")
+    display(L"\sigma(x)         = %$(uwerr.Δvalue)")
+    display(L"\sigma(\sigma(x)) = %$(uwerr.ΔΔvalue)")
+    display(L"\tau_{\text{int}} = %$(uwerr.τᵢₙₜ)")
+    display(L"\sigma(\tau_{\text{int}}) = %$(uwerr.Δτᵢₙₜ)")
     if uwerr.R >1
-        println("Q = $(uwerr.Q)")
+        display("Q = $(uwerr.Q)")
     end
 else
-    println(L"W_{opt}           = %$(uwerr.Wₒₚₜ) for the %$(length(uwerr.Wₒₚₜ), observables)")
+    display(L"W_{opt}           = %$(uwerr.Wₒₚₜ) for the %$(length(uwerr.Wₒₚₜ), observables)")
 
 end
 
