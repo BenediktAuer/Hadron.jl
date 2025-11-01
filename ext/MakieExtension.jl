@@ -106,23 +106,23 @@ Attributes
 
 """
 function Hadron.inspect(m::BootstrapResult, ;col=1, QQmarkercolor=Makie.wong_colors()[2], QQcolor = Makie.wong_colors()[1],kw_args...)
-    fig = Figure()
-    a1 = Axis(fig[1,1], title = "Histogram",xlabel=repr(getfield(m,:f)[col]) ,ylabel="Hits") 
-    a2 = Axis(fig[1,2], title = "Q-Q Plot ")
-    Label(fig[1, 1:2, Top()],  uppercasefirst(repr(getfield(m,:f)[col])[2:end]), valign = :top,
-    font = :bold,
-    padding = (5, 5, 30, 5))
-    boothist!(a1,m,col=col,kw_args... )
-    qqnorm!(a2,m,col=col,markercolor=QQmarkercolor, color=QQcolor, qqline=:fit, kw_args...)
-    return fig
+
+    # Label(fig[1, 1:2, Top()],  uppercasefirst(repr(getfield(m,:f)[col])[2:end]), valign = :top,
+    # font = :bold,
+    # padding = (5, 5, 30, 5))
+    boothist(m,col=col,axis=(title = "Histogram",xlabel=repr(getfield(m,:f)[col]) ,ylabel="Hits"),kw_args... )
+        current_figure()|> display
+    qqnorm(m,col=col,markercolor=QQmarkercolor, color=QQcolor, qqline=:fit, axis=(title = "Q-Q Plot for $(repr(getfield(m,:f)[col]))",),kw_args...)
+        current_figure()|> display
+    return 
 end
 
 function Hadron.inspect(m::TSBootstrapResult)
-    fig = Figure()
-    ax = Axis(fig[1,1], xlabel="Blocklength", ylabel = L"\sigma")
-    scatter!(ax, m[:Blocksize], m[:σ])
-    errorbars!(ax,m[:Blocksize], m[:σ], m[:δσ], whiskerwidth = 10)
-    return fig
+
+    scatter( m[:Blocksize], m[:σ],axis=(xlabel="Blocklength", ylabel = L"\sigma"))
+    errorbars!(m[:Blocksize], m[:σ], m[:δσ], whiskerwidth = 10)
+    current_figure()|> display
+    return 
 end
 
 function Hadron.inspect(m::GammaErrorReturnTye)
