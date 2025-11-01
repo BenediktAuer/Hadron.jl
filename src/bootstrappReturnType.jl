@@ -35,7 +35,7 @@ Base.iterate(m::AbstractBootstrapResult, st=1) = iterate(getfield(m, :data), st)
 #     getfield(getfield(m, :source), :matrix)[getfield(m, :row), getfield(getfield(m, :source), :lookup)[nm]]
 # Tables.columnnames(m::eltype(AbstractBootstrapResult)) = names(m)
 
-function describeBoot(m::AbstractBootstrapResult)
+function Base.summary(m::AbstractBootstrapResult)
     println("Summary of Bootstrap Result: ")
     for idx in eachindex(Tables.columnnames(m))
         colname = Tables.columnnames(m)[idx]

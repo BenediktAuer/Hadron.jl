@@ -7,7 +7,7 @@ else
 end
 
 using Hadron
-import Hadron: boothist,boothist!, BootstrapResult, TSBootstrapResult
+import Hadron: boothist,boothist!, BootstrapResult, TSBootstrapResult, GammaErrorReturnTye
 import Statistics: std
 " QQNORM conversion"
 
@@ -105,7 +105,7 @@ Attributes
  `kw_args...`:  Other Arguments which are forwarded to boothist, and qqnorm, for a list see those
 
 """
-function Hadron.analyse(m::BootstrapResult, ;col=1, QQmarkercolor=Makie.wong_colors()[2], QQcolor = Makie.wong_colors()[1],kw_args...)
+function Hadron.inspect(m::BootstrapResult, ;col=1, QQmarkercolor=Makie.wong_colors()[2], QQcolor = Makie.wong_colors()[1],kw_args...)
     fig = Figure()
     a1 = Axis(fig[1,1], title = "Histogram",xlabel=repr(getfield(m,:f)[col]) ,ylabel="Hits") 
     a2 = Axis(fig[1,2], title = "Q-Q Plot ")
@@ -117,12 +117,34 @@ function Hadron.analyse(m::BootstrapResult, ;col=1, QQmarkercolor=Makie.wong_col
     return fig
 end
 
-function Hadron.analyse(m::TSBootstrapResult)
+function Hadron.inspect(m::TSBootstrapResult)
     fig = Figure()
     ax = Axis(fig[1,1], xlabel="Blocklength", ylabel = L"\sigma")
     scatter!(ax, m[:Blocksize], m[:σ])
     errorbars!(ax,m[:Blocksize], m[:σ], m[:δσ], whiskerwidth = 10)
     return fig
+end
+
+function Hadron.inspect(m::GammaErrorReturnTye)
+
+      hist(m.data,axis=( title = "Histogram",xlabel="observable" ,ylabel="Hits"))
+      display(current_figure())
+      GammaFbb = m.Gamma/m.Gamma[1]
+      err = Hadron.gammaerror(GammaFbb,m.N,m.Wₘₐₓ,100)
+      Wopt = m.Wₒₚₜ
+      Wmax = m.Wₘₐₓ
+      vlines([Wopt],color=Makie.wong_colors()[2],axis=( ylabel=L"\Gamma(t)", xlabel=L"t"))
+      hlines!([0],color=:black)
+      scatter!( 0:Wmax,GammaFbb[1:Wmax+1])
+      errorbars!( 0:Wmax,GammaFbb[1:Wmax+1], err[1:Wmax+1],whiskerwidth = 3)
+        display(current_figure())
+
+        vlines([Wopt+1],color=Makie.wong_colors()[4],axis=(xlabel=L"W",ylabel=L"\tau_{int}(W)"))
+        hlines!([m.τᵢₙₜW[Wopt]],color=Makie.wong_colors()[2])
+      scatter!(m.τᵢₙₜW[1:Wmax])
+    errorbars!(1:Wmax,m.τᵢₙₜW[1:Wmax],m.ΔτᵢₙₜW[1:Wmax],whiskerwidth = 3 )
+display(current_figure())
+      return 
 end
 
 end

@@ -4,10 +4,12 @@ include( "bootstrapp.jl")
 
 include("io.jl")
 include("visualisation.jl")
+include("gammaMethod.jl")
+include("gammaReturnType.jl")
+include("Iterators.jl")
+export Bootstrap, ts_boot, boot,  show, UWError,errorestimate
 
-export Bootstrap, ts_boot, boot, describeBoot, show
-
-export boothist,analyse,boothist!
+export boothist,inspect,boothist!
 
 # Write your package code here.
 function __init__()

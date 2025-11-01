@@ -3,4 +3,4 @@
 function boothist
 end
 function boothist! end
-function analyse end
+function inspect end
