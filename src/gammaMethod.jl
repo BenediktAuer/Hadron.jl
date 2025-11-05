@@ -28,7 +28,7 @@ Wmax = 0
 Gint = 0.0
 flag = false
 if S!=0
-    Wmax = fld(minimum(nrep),2)-1
+    Wmax = fld(minimum(nrep),2)
     flag = true
 end
 GammaFbb = zeros(Float64, Wmax)
@@ -135,10 +135,10 @@ function findWopt!!!!(Wmax,Gint,flag,GammaFbb,delpro,nrep,N,R,S)
 end
 function gammaerror(gamma, N,W,Λ)
     err = zeros(Float64,W+1)
-    gamma[(W+2):(2*W+W+1)] .= 0
+    gamma[(W+2):min((2*W+W+1),end)] .= 0
     for t in 0:W
-        k = max(1,(t-W)):(t+W)
-        err[t+1]  = sum((gamma[k.+t.+1]+gamma[abs.(t.-k).+1]- 2 .* gamma[t+1] .*gamma[k.+1]).^2      )
+        k = max(1,(t-W)):min((t+W), length(gamma)-W-1)
+        err[t+1]  = sum(gamma[k.+t.+1]+(gamma[abs.(t.-k).+1]- 2 .* gamma[t+1] .*gamma[k.+1]).^2      )
         err[t+1] = sqrt(err[t+1]/N)
     end
     err[1] = 0.001
