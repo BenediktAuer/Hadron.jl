@@ -138,7 +138,7 @@ function gammaerror(gamma, N,W,Λ)
     gamma[(W+2):min((2*W+W+1),end)] .= 0
     for t in 0:W
         k = max(1,(t-W)):min((t+W), length(gamma)-W-1)
-        err[t+1]  = sum(gamma[k.+t.+1]+(gamma[abs.(t.-k).+1]- 2 .* gamma[t+1] .*gamma[k.+1]).^2      )
+        err[t+1]  = sum((gamma[k.+t.+1]+gamma[abs.(t.-k).+1]- 2 .* gamma[t+1] .*gamma[k.+1]).^2      )
         err[t+1] = sqrt(err[t+1]/N)
     end
     err[1] = 0.001
