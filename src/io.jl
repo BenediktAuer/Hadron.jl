@@ -5,6 +5,9 @@ function Base.show(io::IO, m::AbstractBootstrapResult)
 end
 
 function Base.show(io::IO, m::AbstractBootstrap)
-    println("$(typeof(m)) with $(length(m.data)) values")
+    println("$(typeof(m)) with $(size(m.data)) values")
     println("Seed: $(m.seed)")
+end
+"Struct to plot all Obs"
+struct AllObs 
 end

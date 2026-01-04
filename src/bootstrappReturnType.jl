@@ -37,9 +37,11 @@ Base.iterate(m::AbstractBootstrapResult, st=1) = iterate(getfield(m, :data), st)
 
 function Base.summary(m::AbstractBootstrapResult)
     println("Summary of Bootstrap Result: ")
+    # println(getfield(m,:observable))
+    # println(matrix(m))
     for idx in eachindex(Tables.columnnames(m))
         colname = Tables.columnnames(m)[idx]
-        coldata = Tables.getcolumn(m, colname)
+        coldata = Tables.getcolumn(m, idx)
         println("Column: $colname")
         println("  Oberservable: $(getfield(m,:observable)[idx])")
         println("  std: $(std(coldata))")
@@ -51,17 +53,17 @@ struct BootstrapResult{DF} <:AbstractBootstrapResult
     data::DF
     f::Vector{Symbol}
     observable::Vector{Float64}
-    function BootstrapResult(data::AbstractVecOrMat{T}, func, observable::Float64) where {T<:Number}
+    function BootstrapResult(data::AbstractVecOrMat{T}, func, observable::Vector{Float64}, header::Vector{Symbol}) where {T<:Number}
 #use table default constructor to make Table
-    df = Tables.table(data, header=[Symbol(func)])
-    new{typeof(df)}(df, [Symbol(func)],[observable])
+    df = Tables.table(data, header=header )
+    new{typeof(df)}(df, [Symbol(func)],observable)
 end
-function BootstrapResult(data::AbstractVecOrMat{T}, func::Vector{Function},observable::Vector{Float64}) where {T<:Number}
-#use table default constructor to make Table
-    func = map(f -> Symbol(f), func)
-    df = Tables.table(data, header=func)
-    new{typeof(df)}(df, func,observable)
-end
+# function BootstrapResult(data::AbstractVecOrMat{T}, func::Vector{Function},observable::Vector{Float64}) where {T<:Number}
+# #use table default constructor to make Table
+#     func = map(f -> Symbol(f), func)
+#     df = Tables.table(data, header=func)
+#     new{typeof(df)}(df, func,observable)
+# end
 end
 
 

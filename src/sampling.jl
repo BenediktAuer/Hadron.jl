@@ -1,4 +1,4 @@
-using Random: default_rng,Sampler
+using Random: default_rng,Sampler,AbstractRNG
 
 """
     direct_sample!([rng], a::AbstractArray, x::AbstractArray)
@@ -38,14 +38,15 @@ function direct_sample!(rng::AbstractRNG, a::AbstractMatrix, x::AbstractMatrix)
     Base.mightalias(a, x) &&
         throw(ArgumentError("output array x must not share memory with input array a"))
 
-    s = Sampler(rng, 1:nrows_a)
-idxbuf = Vector{Int}(undef, nrows_x)
-for j in 1:ncols_a
-    rand!(rng, idxbuf, s)
-    @inbounds @simd for k in 1:nrows_x
-        x[k, j] = a[idxbuf[k], j]
+   idx_list = rand(rng, 1:nrows_a, nrows_x)
+
+    # 2. Optimized Loop: Iterate over columns FIRST (Outer)
+    # Then iterate over rows (Inner) to follow memory layout
+    for j in 1:ncols_a
+        @inbounds @simd for k in 1:nrows_x
+            x[k, j] = a[idx_list[k], j]
+        end
     end
-end
     return x
 end
 direct_sample!(a::T, x::T) where {T} = direct_sample!(default_rng(), a, x)

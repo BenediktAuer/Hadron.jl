@@ -2,6 +2,7 @@ using StatsBase: sample!
 import Tables
 using Statistics: mean, std
 using Random: rand, seed!
+
 include("helperfunctions.jl")
 include("blocking.jl")
 
@@ -27,20 +28,21 @@ abstract type AbstractBootstrap end
 struct Bootstrap{ T<:Number, V<:AbstractVecOrMat{T}}<: AbstractBootstrap
 data::V
 seed ::Int
-    function Bootstrap(_data::V,  _seed::Int) where {T<:Number,V<:AbstractVecOrMat{T} }
+header::Vector{Symbol}
+    function Bootstrap(_data::V,  _seed::Int, _header::Vector{Symbol}) where {T<:Number,V<:AbstractVecOrMat{T} }
     seed!(_seed)
-    new{T,V}(_data,_seed)
+    new{T,V}(_data,_seed,_header)
 end
 # ["Blocksize","μ", "σ", "δσ","τ_int", "Bias"]
 end
-function Bootstrap(data::V) where{T<:Number,V<:AbstractVecOrMat{T}}
+function Bootstrap(data::V,) where{T<:Number,V<:AbstractVecOrMat{T}}
      _seed = rand(Int)
-    Bootstrap(data,_seed)
+    Bootstrap(data,_seed,[Symbol("Column "*string(i)) for i in 1: size(data,2)])
 end
 function Bootstrap(data::D, column::Symbol) where{D}
          Tables.istable(D) ||ArgumentError( "The Provided Data must implemment the Tables.jl interface")
      _seed = rand(Int)
-    Bootstrap(Tables.getcolumn(data,column),_seed)
+    Bootstrap(Tables.getcolumn(data,column),_seed, [column])
 end
 
 """
@@ -54,12 +56,17 @@ end
 function Bootstrap(f,data::D, column::Symbol) where{D}
          Tables.istable(D) ||ArgumentError( "The Provided Data must implemment the Tables.jl interface")
      _seed = rand(Int)
-    Bootstrap(f.(Tables.getcolumn(data,column)),_seed)
+    Bootstrap(f.(Tables.getcolumn(data,column)),_seed,[column])
 end
 
+function Bootstrap(data::D; skip::Int=0) where{D}
+         Tables.istable(D) ||ArgumentError( "The Provided Data must implemment the Tables.jl interface")
+     _seed = rand(Int)
+    Bootstrap(Matrix(data)[:,skip+1:end],_seed,Tables.columnnames(data)[skip+1:end])
+end
 function Bootstrap(f,data::D, column::Symbol, seed::Int) where{D}
          Tables.istable(D) ||ArgumentError( "The Provided Data must implemment the Tables.jl interface")
-    Bootstrap(f.(Tables.getcolumn(data,column)),seed)
+    Bootstrap(f.(Tables.getcolumn(data,column)),seed,[column])
 end
 
 function ts_boot(bs::T;l::Int = 2,R::Int =500, skip::Int=0) where {T<:AbstractBootstrap} 
@@ -112,20 +119,23 @@ function boot(bs::T,f;R::Int =500, skip::Int=0)::BootstrapResult where {T<:Boots
         result[b ] = f(temp)
     end
 
-    res = BootstrapResult(result,f,f(data))
+    res = BootstrapResult(result,f,[f(data)],bs.header)
     return res
 end
-function boot(bs::T,f;R::Int =500, skip::Int=0)::BootstrapResult where {T<:Bootstrap{<:Number,<:AbstractArray{<:Number,2}}}
+function boot(bs::T,f;R::Int =2, skip::Int=0)::BootstrapResult where {T<:Bootstrap{<:Number,<:AbstractArray{<:Number,2}}}
     data =  bs.data[ skip+1:last(axes(bs.data,1)), :]
      nrows,ncols = size(data)
-    temp = Vector{Float64}(undef, )
-    result = Vector{Float64}(undef, R)
+    temp = similar(bs.data,Float64 )
+    result = similar(bs.data,Float64, R, ncols)
     for b in 1:R
-     sample!(data, temp, replace=true)
-        result[b ] = f(temp)
-    end
+        direct_sample!(data, temp)
+        res_row = f(temp,dims=1)
 
-    res = BootstrapResult(result,f,f(data))
+        for k in 1:ncols
+        result[b,k ] = res_row[k]
+    end
+end
+    res = BootstrapResult(result,f,vec(f(data,dims=1)),bs.header)
     return res
 end
 function boot(bs::T,f::F;R::Int =500, skip::Int=0)::BootstrapResult where {T<:Bootstrap{<:Number,<:AbstractVector}, F<: AbstractArray{Function}}
@@ -141,7 +151,7 @@ function boot(bs::T,f::F;R::Int =500, skip::Int=0)::BootstrapResult where {T<:Bo
         end
     end
 
-    res = BootstrapResult(result,f, map(x->x(data), f))
+    res = BootstrapResult(result,f, map(x->x(data), f),header=bs.header)
     return res
 end
     
