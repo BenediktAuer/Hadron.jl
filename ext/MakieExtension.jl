@@ -148,12 +148,12 @@ function Hadron.inspect(m::TSBootstrapResult)
     return 
 end
 
-function Hadron.inspect(m::GammaErrorReturnTye,pdf =false)
+function Hadron.inspect(m::GammaErrorReturnTye;pdf =false)
 
       hist(m.data,axis=( title = "Histogram",xlabel="observable" ,ylabel="Hits"))
       display(current_figure())
            if pdf
-            savefig(current_figure(),"Histogram.pdf")
+            save(current_figure(),"Histogram.pdf")
         end
       GammaFbb = m.Gamma/m.Gamma[1]
       err = Hadron.gammaerror(GammaFbb,m.N,m.Wₘₐₓ,100)
@@ -165,7 +165,7 @@ function Hadron.inspect(m::GammaErrorReturnTye,pdf =false)
       errorbars!( 0:Wmax,GammaFbb[1:Wmax+1], err[1:Wmax+1],whiskerwidth = 3)
         display(current_figure())
         if pdf
-            savefig(current_figure(),"Autocorrelationfunction.pdf")
+            save(current_figure(),"Autocorrelationfunction.pdf")
         end
 
         vlines([Wopt+1],color=Makie.wong_colors()[4],axis=(xlabel=L"W",ylabel=L"\tau_{int}(W)"))
@@ -174,7 +174,7 @@ function Hadron.inspect(m::GammaErrorReturnTye,pdf =false)
     errorbars!(1:Wmax,m.τᵢₙₜW[1:Wmax],m.ΔτᵢₙₜW[1:Wmax],whiskerwidth = 3 )
 display(current_figure())
      if pdf
-            savefig(current_figure(),"Window.pdf")
+            save(current_figure(),"Window.pdf")
         end
       return 
 end
