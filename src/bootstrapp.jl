@@ -151,7 +151,7 @@ function boot(bs::T,f::F;R::Int =500, skip::Int=0)::BootstrapResult where {T<:Bo
         end
     end
 
-    res = BootstrapResult(result,f, map(x->x(data), f),header=bs.header)
+    res = BootstrapResult(result,f, map(x->x(data), f),bs.header)
     return res
 end
     
