@@ -22,6 +22,7 @@ function errorestimate(uwer::UWError; S::Float64=1.5, skip::Int =0 )
     R = length(nrep)
     mx = mean(data)
     mxr =  Iterators.map(mean,varpartition(data,nrep))
+    test = collect(mxr)
     fb = sum(mxr .* nrep)/N #weighted mean  of replica mmeans
 delpro = data .- mx
 Wmax = 0
@@ -87,7 +88,8 @@ if R>1
         
     end
 mxr = Iterators.map((m,n) -> m - bF*N/n, mxr, nrep)
-@. fb -= bF*R
+test1 = collect(mxr)
+ fb -= bF*R
 end
 value = mx 
 dvalue = sigmaF
@@ -97,8 +99,12 @@ tauint =tauintFbb[Wopt+1]
 dtauint = tauint*2*sqrt((Wopt-tauint+0.5)/N)
 Qval=NaN
 if R>1
-    chisqr = sum((mxr .-fb).^2*nrep)/CFbbopt
-    Qval = 1- cdf(Gamma((R-1)/2,1),chisqr/2)
+    # itr = Iterators.map((m,n)->(m-fb)^2 * nrep, mxr,nrep)
+    chisqr = sum((collect(mxr) .-fb).^2 .*nrep)/CFbbopt
+    # test = collect(itr)
+    # chisqr = sum(itr)/CFbbopt
+    cdl = cdf(Gamma((R-1)/2,1),chisqr/2)
+    Qval = 1- cdl
 end
 return GammaErrorReturnTye(value,dvalue,ddvalue,tauint,dtauint,Wopt,Wmax, tauintFbb[1:(Wmax+1)],dtauintofW[1:(Wmax+1)],Qval,S,N,R,nrep,data,GammaFbb,dGamma,true)
 end

@@ -25,7 +25,7 @@ end
 function Base.summary(uwerr::AbstractGammaErrorReturnType)
     println("Analysis bassed on $(uwerr.N) measurements" )
 if uwerr.R>1
-    println("split in $(uwerr.R) replica with $(uwerr.Nrep) measurements, respectively")
+    println("split in $(uwerr.R) replica with $(uwerr.nrep) measurements, respectively")
     
 end
     if uwerr.primary == 1
