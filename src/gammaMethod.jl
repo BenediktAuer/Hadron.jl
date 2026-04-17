@@ -86,7 +86,7 @@ if R>1
         @info "a $(bF/sigmaF) bias of the mean has been cancelled"
         
     end
-@.    mxr -= bF*N/nrep
+mxr = Iterators.map((m,n) -> m - bF*N/n, mxr, nrep)
 @. fb -= bF*R
 end
 value = mx 
