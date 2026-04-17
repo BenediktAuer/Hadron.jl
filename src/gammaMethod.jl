@@ -97,7 +97,7 @@ tauint =tauintFbb[Wopt+1]
 dtauint = tauint*2*sqrt((Wopt-tauint+0.5)/N)
 Qval=NaN
 if R>1
-    chisqr = sum((mxr .-Fb).^2*nrep)/CFbbopt
+    chisqr = sum((mxr .-fb).^2*nrep)/CFbbopt
     Qval = 1- cdf(Gamma((R-1)/2,1),chisqr/2)
 end
 return GammaErrorReturnTye(value,dvalue,ddvalue,tauint,dtauint,Wopt,Wmax, tauintFbb[1:(Wmax+1)],dtauintofW[1:(Wmax+1)],Qval,S,N,R,nrep,data,GammaFbb,dGamma,true)
